@@ -110,15 +110,16 @@ app.delete("/tasks/delete/:id", (req, res) => {
 // Create task
 app.post("/tasks/create", (req, res) => {
     const postData = req.body
-    // check if the data is empty
-    if (postData === undefined) {
-        return res.status(400).json(functions.response("Error", "Empty data", 0, null))
-    } // chet if data is invalid
-    if (postData.task === undefined || postData.status === undefined) {
-        return res.status(400).json(functions.response("Error", "Invalid data", 0, null))
-    }
     const task = postData.task
     const status = postData.status
+    // check if the data is empty
+    if (task.trim() === "") {
+        return res.status(400).json(functions.response("Error", "Empty data", 0, null))
+    } // chet if data is invalid
+    if (task.trim() === "" || status.trim() === "") {
+        return res.status(400).json(functions.response("Error", "Invalid data", 0, null))
+    }
+
     // connection
     connection.query("INSERT INTO tasks (task, status, created_at, updated_at) VALUES (?, ?, NOW(), NOW())", [task, status], (err, result) => {
         if (!err) {
