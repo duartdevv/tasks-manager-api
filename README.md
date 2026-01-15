@@ -10,7 +10,12 @@ This project provides a basic REST API server running on port 3000 with endpoint
 ## Features
 
 - CORS enabled for cross-origin requests
-- MySQL database integration
+- JSON request body parsing
+- Input validation for task operations
+- POST endpoint for task creation
+- PUT endpoint for task status updates
+- DELETE endpoint for task removal
+- Error handling with appropriate HTTP status codes
 - Task management endpoints
 - Standardized JSON response format
 - API availability check middleware
