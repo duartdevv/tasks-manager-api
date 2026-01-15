@@ -1,4 +1,4 @@
-// const requires
+//requires
 const express = require("express")
 const mysql = require("mysql2")
 const cors = require("cors")
@@ -12,6 +12,7 @@ const app = express()
 //cors
 app.use(cors())
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 //init server
 app.listen(3000, () => {
     console.log("API is running.")
@@ -33,32 +34,100 @@ app.get("/", (req, res) => {
 // endpoints
 // ----------------
 // GET all tasks
-app.get("/tasks", (req, res) =>{
-    connection.query("SELECT * FROM tasks", (err, rows,) =>{
-        if(!err) {
-            res.json(functions.response("success", "success", rows.length, rows))
+app.get("/tasks", (req, res) => {
+    connection.query("SELECT * FROM tasks", (err, rows,) => {
+        if (!err) {
+            return res.json(functions.response("success", "success", rows.length, rows))
         } else {
-            res.status(500).json(functions.response("error", err.message, 0, null))
+            return res.status(500).json(functions.response("error", err.message, 0, null))
         }
     })
 })
 // GET task by id
-app.get("/tasks/:id", (req, res) =>{
-    const id = req.params.id
-    connection.query("SELECT * FROM tasks WHERE id = ?", [id],(err, rows) =>{
+app.get("/tasks/:id", (req, res) => {
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id)) {
+        return res.status(400).json(
+            functions.response(
+                "error",
+                "ID must be a number",
+                0,
+                null
+            )
+        )
+    }
+    connection.query("SELECT * FROM tasks WHERE id = ?", [id], (err, rows) => {
         if (!err) {
 
             if (rows.length > 0) {
-                res.json(functions.response("success", "success", rows.length, rows ))
+                return res.json(functions.response("success", "success", rows.length, rows))
             } else {
-                res.status(404).json(functions.response("Warning", "task not found", 0, null))
+                return res.status(404).json(functions.response("Warning", "task not found", 0, null))
             }
         } else {
             res.status(500).json(functions.response("Error", err.message, 0, null))
         }
     })
 })
-
+// Update task
+app.put("/tasks/:id/status/:status", (req, res) => {
+    const id = req.params.id
+    const status = req.params.status
+    connection.query("UPDATE tasks SET status = ? WHERE id = ?", [status, id], (err, result) => {
+        if (!err) {
+            if (result.affectedRows > 0) {
+                return res.status(200).json(functions.response("success", "success", result.affectedRows, result))
+            } else {
+                return res.status(404).json(functions.response("Error 404", "Task not found", 0, null))
+            }
+        } else {
+            res.status(500).json(functions.response("Warning", err.message, 0, null))
+        }
+    })
+})
+// delete task
+app.delete("/tasks/delete/:id", (req, res) => {
+    const id = req.params.id
+    connection.query("DELETE FROM tasks WHERE id = ?", [id], (err, result) => {
+        if (!err) {
+            if (result.affectedRows > 0) {
+                return res
+                    .status(200)
+                    .json(
+                        functions.response(
+                            "success",
+                            "task deleted",
+                            result.affectedRows,
+                            null))
+            } else {
+                res.status(404).json(functions.response("Error", "Task not found", 0, null))
+            }
+        } else {
+            res.status(500).json(functions.response("Warning", err.message, 0, null))
+        }
+    })
+})
+// Create task
+app.post("/tasks/create", (req, res) => {
+    const postData = req.body
+    // check if the data is empty
+    if (postData === undefined) {
+        return res.status(400).json(functions.response("Error", "Empty data", 0, null))
+    } // chet if data is invalid
+    if (postData.task === undefined || postData.status === undefined) {
+        return res.status(400).json(functions.response("Error", "Invalid data", 0, null))
+    }
+    const task = postData.task
+    const status = postData.status
+    // connection
+    connection.query("INSERT INTO tasks (task, status, created_at, updated_at) VALUES (?, ?, NOW(), NOW())", [task, status], (err, result) => {
+        if (!err) {
+            return res.status(201).json(functions.response("success", "task created", result.affectedRows, null))
+        } else {
+            return res.status(500).json(functions.response("Error", err.message, 0, null))
+        }
+    })
+})
 app.use((req, res) => {
-    res.status(404).json(functions.response("Error", "Route not found", 0, null))
+    return res.status(404).json(functions.response("Error", "Route not found", 0, null))
 })
