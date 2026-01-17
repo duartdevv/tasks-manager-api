@@ -5,6 +5,23 @@ A simple Node.js REST API for managing tasks using Express and MySQL.
 
 ## Overview
 
+This is a lightweight REST API built with Node.js and Express, designed for efficient task management operations. It integrates with MySQL to provide persistent data storage and includes comprehensive error handling and middleware support for production-ready applications.
+
+## Project Structure
+
+The API is organized with the following components:
+
+- **api.js** - Main application file containing all route handlers and middleware
+- **inc/mysql_config.js** - Database configuration file
+- **inc/functions.js** - Utility functions for standardized API responses
+
+## Technology Stack
+
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MySQL
+- **Dependencies:** mysql2, cors, express
+
 This project provides a basic REST API server running on port 3000 with endpoints to retrieve tasks from a MySQL database.
 
 ## Features
