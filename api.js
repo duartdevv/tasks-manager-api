@@ -107,6 +107,17 @@ app.delete("/tasks/delete/:id", (req, res) => {
         }
     })
 })
+// delete ALL tasks
+app.delete("/tasks/deleteAll/", (req, res) => {
+    // query connection
+    connection.query("DELETE FROM tasks", (err, results) => {
+        if (!err) {
+            res.status(200).json(functions.response("success", "All tasks are deleted", `Tasks deleted: ${results.affectedRows}`, results))
+        } else {
+            res.status(400).json(functions.response("Error", err.message, 0, null))
+        }
+    })
+})
 // Create task
 app.post("/tasks/create", (req, res) => {
     const postData = req.body
@@ -126,6 +137,37 @@ app.post("/tasks/create", (req, res) => {
             return res.status(201).json(functions.response("success", "task created", result.affectedRows, null))
         } else {
             return res.status(500).json(functions.response("Error", err.message, 0, null))
+        }
+    })
+})
+// Update task
+app.put("/tasks/update/:id", (req, res) => {
+    const postData = req.body
+    const id = req.params.id
+    const task = postData.task
+    const status = postData.status
+
+    if (task.trim() === "") {
+        return res.status(400).json(functions.response("Error", "The task must be a content", 0, null))
+    }
+    if (status.trim() === "") {
+        return res.status(400).json(functions.response("Error", "The status must be updated too.", 0, null))
+    }
+    connection.query("UPDATE tasks SET task = ?, status = ?, updated_at = NOW() WHERE id = ?", [task, status, id], (err, results) => {
+        if (!err) {
+            if (results.affectedRows > 0) {
+                return res.status(200).json(functions.response(
+                    "success", "task updated", results.affectedRows, results
+                ))
+            } else {
+                return res.status(404).json(functions.response(
+                    "Error", "Task not found", 0, null
+                ))
+            }
+        } else {
+            res.status(400).json(functions.response(
+                "Error", err.message, 0, null
+            ))
         }
     })
 })
