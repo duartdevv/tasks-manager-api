@@ -1,5 +1,5 @@
 
-# Rest API
+# Rest API Task manager
 
 A simple Node.js REST API for managing tasks using Express and MySQL.
 
@@ -85,3 +85,4 @@ node api.js
 - Express
 - mysql2
 - cors
+
